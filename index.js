@@ -5,31 +5,46 @@ const app = express();
 const PORT = 3000;
 
 app.get('/xcb', async (req, res) => {
-    const url = 'https://api.ping.exchange/marketdata/api/v1/tickers?symbol=xcb_usdc';
+    const urls = [
+        'https://api.ping.exchange/marketdata/api/v1/tickers?symbol=xcb_usdc',
+        'https://api.ping.exchange/marketdata/api/v1/tickers?symbol=ctn_usdc'
+    ];
 
     try {
-        const response = await fetch(url);
-        if (!response.ok) {
+        // Fetch all URLs in parallel
+        const responses = await Promise.all(urls.map(url => fetch(url)));
+
+        // Check for any non-ok responses
+        if (!responses.every(response => response.ok)) {
             throw new Error('Failed to fetch data from the API');
         }
-        const data = await response.json();
-        if (data.length > 0) {
-            const ticker = data[0];
-            const lastPriceRounded = parseFloat(ticker.lastPrice).toFixed(2);
 
-            const formattedResult = {
-                frames: [
-                    {
-                        text: `${lastPriceRounded} $`,
-                        icon: 60433
-                    }
-                ]
-            };
+        // Parse JSON for all responses in parallel
+        const dataArrays = await Promise.all(responses.map(response => response.json()));
 
-            res.status(200).json(formattedResult);
-        } else {
+        // Check for any empty data
+        if (!dataArrays.every(data => data.length > 0)) {
             throw new Error('No data available');
         }
+
+        // Extracting the first item in each data array (assuming the relevant ticker is the first item)
+        const lastPriceRoundedXCB = parseFloat(dataArrays[0][0].lastPrice).toFixed(2);
+        const lastPriceRoundedCTN = parseFloat(dataArrays[1][0].lastPrice).toFixed(2);
+
+        const formattedResult = {
+            frames: [
+                {
+                    text: `${lastPriceRoundedXCB} $`,
+                    icon: 60433
+                },
+                {
+                    text: `${lastPriceRoundedCTN} $`,
+                    icon: 60438
+                }
+            ]
+        };
+
+        res.status(200).json(formattedResult);
     } catch (error) {
         console.error("Error:", error.message);
         let errorCode = 500; // Default is 500 Internal Server Error
