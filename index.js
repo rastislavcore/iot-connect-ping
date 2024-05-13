@@ -20,7 +20,7 @@ app.get('/xcb', async (req, res) => {
             const formattedResult = {
                 frames: [
                     {
-                        text: `₡ = ${lastPriceRounded} $`
+                        text: `XCB ${lastPriceRounded} $`
                     }
                 ]
             };
