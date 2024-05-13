@@ -34,8 +34,16 @@ app.get('/xcb', async (req, res) => {
         const formattedResult = {
             frames: [
                 {
+                    text: `XCB`,
+                    icon: 60433
+                },
+                {
                     text: `${lastPriceRoundedXCB} $`,
                     icon: 60433
+                },
+                {
+                    text: `CTN`,
+                    icon: 60438
                 },
                 {
                     text: `${lastPriceRoundedCTN} $`,
