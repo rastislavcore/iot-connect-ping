@@ -1,5 +1,6 @@
-const express = require('express');
-const fetch = require('node-fetch');
+import express from 'express';
+import fetch from 'node-fetch';
+
 const app = express();
 const PORT = 3000;
 
@@ -9,7 +10,7 @@ app.get('/xcb', async (req, res) => {
     try {
         const response = await fetch(url);
         if (!response.ok) {
-            throw new Error('Failed to fetch data from the API'); // This will handle HTTP errors from the API
+            throw new Error('Failed to fetch data from the API');
         }
         const data = await response.json();
         if (data.length > 0) {
@@ -26,24 +27,22 @@ app.get('/xcb', async (req, res) => {
 
             res.status(200).json(formattedResult);
         } else {
-            throw new Error('No data available'); // Error type 2: No data in the array
+            throw new Error('No data available');
         }
     } catch (error) {
         console.error("Error:", error.message);
-        // Determine error code and message based on the error type
         let errorCode = 500; // Default is 500 Internal Server Error
         let errorMessage = "Err 3"; // Default for unexpected errors
         switch (error.message) {
             case 'Failed to fetch data from the API':
-                errorCode = 502; // 502 Bad Gateway indicates upstream server issues
+                errorCode = 502;
                 errorMessage = "Err 1"; // Could not connect to API
                 break;
             case 'No data available':
-                errorCode = 404; // 404 Not Found for no data found
+                errorCode = 404;
                 errorMessage = "Err 2"; // No data found
                 break;
         }
-        // Consistent error format without the icon
         const errorResult = {
             frames: [
                 {
